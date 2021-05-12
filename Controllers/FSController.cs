@@ -31,11 +31,11 @@ namespace backend_test.Controllers
         }
 
         [HttpPost]
-        public string CreateFsObject([FromQuery] string p, [FromBody] VirtualFile newFileReq)
+        public string CreateFsObject([FromQuery] string p, [FromBody] CreateFileRequest newFileReq)
         {
             _logger.LogInformation($"Creating new file at path {p}");
 
-            string result = _fileSystemService.CreateNewVirtualFile(p, newFileReq);
+            string result = _fileSystemService.CreateNewVirtualFile(p, new VirtualFile(newFileReq.Name, newFileReq.Content));
 
             return null;
         }

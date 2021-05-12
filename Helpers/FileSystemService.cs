@@ -10,7 +10,6 @@ namespace backend_test.Helpers
     {
         public void CreateMockFileSystem();
         public List<string> GetAllContent(string path);
-        public VirtualDirectory NavigateToPath(string path);
         public string CreateNewVirtualFile(string path, VirtualFile file);
     }
 
@@ -69,7 +68,14 @@ namespace backend_test.Helpers
             return allContent;
         }
 
-        public VirtualDirectory NavigateToPath(string path)
+        public string CreateNewVirtualFile(string path, VirtualFile file)
+        {
+            Console.WriteLine($"Creating new file at path {path}");
+
+            return "";
+        }
+
+        private VirtualDirectory NavigateToPath(string path)
         {
             // Path is deep
             if (path.Contains('/'))
@@ -107,13 +113,6 @@ namespace backend_test.Helpers
             {
                 return GetTargetDirectory(path, fileSystem);
             }
-        }
-
-        public string CreateNewVirtualFile(string path, VirtualFile file)
-        {
-            Console.WriteLine($"Creating new file at path {path}");
-
-            return "";
         }
 
         // Helper for nested path
