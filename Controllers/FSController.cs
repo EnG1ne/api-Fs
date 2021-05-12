@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using backend_test.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -9,21 +10,26 @@ namespace backend_test.Controllers
     public class FSController : ControllerBase
     {
         private readonly ILogger<FSController> _logger;
+        private readonly IFSService _fsService;
 
-        public FSController(ILogger<FSController> logger)
+        public FSController(ILogger<FSController> logger, IFSService fsService)
         {
             _logger = logger;
+            _fsService = fsService;
         }
 
         [HttpGet]
-        public List<string> GetFiles([FromQuery] string p, [FromQuery] List<string> flags)
+        public List<string> GetFiles([FromQuery] string p)
         {
-            return null;
+            List<string> list = _fsService.GetAllFilesInPath(p);
+
+            return list;
         }
 
         [HttpPost]
         public string CreateFsObject([FromQuery] string p)
         {
+
             return null;
         }
 
