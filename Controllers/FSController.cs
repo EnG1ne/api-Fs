@@ -41,9 +41,11 @@ namespace backend_test.Controllers
 
 
         [HttpPost("modify")]
-        public string ModifyFsObject([FromQuery] string p)
+        public string ModifyFsObject([FromQuery] string p, [FromBody] ModifyFileRequest contentReq)
         {
-            return null;
+            _logger.LogInformation($"Modifying new file at path {p}");
+
+            return _fileSystemService.ModifyContentOfFile(p, contentReq.Content);
         }
 
         [HttpDelete]

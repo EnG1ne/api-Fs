@@ -12,6 +12,7 @@ namespace backend_test.Helpers
         public bool CreateNewVirtualFile(string path, VirtualFile file);
         public bool DeleteFileOrFolder(string path, bool isFlagActive);
         public string GetContentOfFile(string path);
+        public string ModifyContentOfFile(string path, string content);
     }
 
     // Creates and manages virtual file system
@@ -184,7 +185,6 @@ namespace backend_test.Helpers
                         return ((VirtualFile)file).GetContent();
                     }
                 }
-                return "No matching file found";
             }
             else
             {
@@ -219,6 +219,61 @@ namespace backend_test.Helpers
                             return ((VirtualFile)file).GetContent();
                         }
                     }
+                }
+            }
+
+            return "File not Found!";
+        }
+
+        public string ModifyContentOfFile(string path, string content)
+        {
+            if (path == "" || path == null || !path.Contains('/'))
+            {
+                foreach (IFileSystemObject file in FileSystem.fileSystem)
+                {
+                    if (file.Name == path && file is VirtualFile)
+                    {
+                        ((VirtualFile)file).SetContent(content);
+                        return $"File at {path} modified with \"{content}\"";
+                    }
+                }
+            }
+            else
+            {
+                var separatedPathNames = path.Split('/');
+                var pathWithoutTargetArray = separatedPathNames.Take(separatedPathNames.Length - 1).ToArray();
+                var fileName = separatedPathNames[separatedPathNames.Length - 1];
+
+                string pathWithoutTarget = "";
+
+                for (var i = 0; i < pathWithoutTargetArray.Length; i++)
+                {
+                    if (i == 0)
+                    {
+                        pathWithoutTarget = pathWithoutTargetArray[i];
+                    }
+                    else
+                    {
+                        pathWithoutTarget += "/" + pathWithoutTargetArray[i];
+                    }
+                }
+
+                Console.WriteLine(pathWithoutTarget);
+
+                VirtualDirectory selectedDirectory = NavigateToPath(pathWithoutTarget);
+
+                if (selectedDirectory != null)
+                {
+                    foreach (IFileSystemObject file in selectedDirectory.GetAllSubFiles())
+                    {
+                        if (file.Name == fileName && file is VirtualFile)
+                        {
+                            ((VirtualFile)file).SetContent(content);
+                            return $"File at {path} modified with \"{content}\"";
+                        }
+                    }
+
+                    return "Only files can be modified!";
                 }
             }
 

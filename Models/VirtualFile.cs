@@ -26,5 +26,10 @@ namespace backend_test.Models
         {
             return Content;
         }
+        
+        public void SetContent(string content)
+        {
+            Content = content;
+        }
     }
 }
