@@ -6,13 +6,21 @@ using System.Threading.Tasks;
 
 namespace backend_test.Helpers
 {
-    // Creates and manages virtual file system
-    public static class FileSystem
+    public interface IFileSystemService
     {
-        public static List<IFileSystemObject> fileSystem = new List<IFileSystemObject>();
+        public void CreateMockFileSystem();
+        public List<string> GetAllContent(string path);
+        public VirtualDirectory NavigateToPath(string path);
+        public string CreateNewVirtualFile(string path, VirtualFile file);
+    }
+
+    // Creates and manages virtual file system
+    public class FileSystemService : IFileSystemService
+    {
+        public List<IFileSystemObject> fileSystem = new List<IFileSystemObject>();
 
         // CREATES SOME FILES AND FOLDERS FOR TESTING PURPOSES
-        public static void CreateMockFileSystem()
+        public void CreateMockFileSystem()
         {
             VirtualDirectory deepDir = new VirtualDirectory("Deep");
             VirtualDirectory twoDeepDir = new VirtualDirectory("DeepTwo");
@@ -34,7 +42,7 @@ namespace backend_test.Helpers
             fileSystem.Add(new VirtualFile("personalProject.txt"));
         }
 
-        public static List<string> GetAllContent(string path)
+        public List<string> GetAllContent(string path)
         {
             List<string> allContent = new List<string>();
             VirtualDirectory selecteDirectory;
@@ -61,7 +69,7 @@ namespace backend_test.Helpers
             return allContent;
         }
 
-        public static VirtualDirectory NavigateToPath(string path)
+        public VirtualDirectory NavigateToPath(string path)
         {
             // Path is deep
             if (path.Contains('/'))
@@ -101,8 +109,15 @@ namespace backend_test.Helpers
             }
         }
 
+        public string CreateNewVirtualFile(string path, VirtualFile file)
+        {
+            Console.WriteLine($"Creating new file at path {path}");
+
+            return "";
+        }
+
         // Helper for nested path
-        private static VirtualDirectory GetTargetDirectory(string path, List<IFileSystemObject> contentList)
+        private VirtualDirectory GetTargetDirectory(string path, List<IFileSystemObject> contentList)
         {
             foreach (var file in from file in contentList
                                  where file.Name.Equals(path)

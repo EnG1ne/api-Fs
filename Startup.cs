@@ -22,7 +22,7 @@ namespace backend_test
         {
             services.AddControllers();
 
-            services.AddScoped<IFSService, FSService>();
+            services.AddScoped<IFileSystemService, FileSystemService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -40,9 +40,6 @@ namespace backend_test
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
-
-            // CREATE MOCKS
-            FileSystem.CreateMockFileSystem();
         }
     }
 }

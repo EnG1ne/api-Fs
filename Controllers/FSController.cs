@@ -2,6 +2,7 @@
 using backend_test.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using backend_test.Helpers;
 
 namespace backend_test.Controllers
 {
@@ -10,27 +11,31 @@ namespace backend_test.Controllers
     public class FSController : ControllerBase
     {
         private readonly ILogger<FSController> _logger;
-        private readonly IFSService _fsService;
+        private readonly IFileSystemService _fileSystemService;
 
-        public FSController(ILogger<FSController> logger, IFSService fsService)
+        public FSController(ILogger<FSController> logger, IFileSystemService fileSystemService)
         {
             _logger = logger;
-            _fsService = fsService;
+            _fileSystemService = fileSystemService;
+
+            // CREATE MOCKS
+            _fileSystemService.CreateMockFileSystem();
         }
 
         [HttpGet]
         public List<string> GetFiles([FromQuery] string p)
         {
-            List<string> list = _fsService.GetAllFilesInPath(p);
+            _logger.LogInformation($"Displaying all contents at path {p}");
 
-            if (list.Count == 0) list.Add("No results! Please ensure files exist in the target folder.");
-
-            return list;
+            return _fileSystemService.GetAllContent(p);
         }
 
         [HttpPost]
-        public string CreateFsObject([FromQuery] string p)
+        public string CreateFsObject([FromQuery] string p, [FromBody] VirtualFile newFileReq)
         {
+            _logger.LogInformation($"Creating new file at path {p}");
+
+            string result = _fileSystemService.CreateNewVirtualFile(p, newFileReq);
 
             return null;
         }
