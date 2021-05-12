@@ -1,3 +1,4 @@
+using backend_test.Helpers;
 using backend_test.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -39,6 +40,9 @@ namespace backend_test
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+
+            // CREATE MOCKS
+            FileSystem.CreateMockFileSystem();
         }
     }
 }

@@ -7,9 +7,6 @@ namespace backend_test.Models
 {
     public interface IFileSystemObject
     {
-        public string Name {
-            get;
-            set;
-        }
+        public string Name { get; set; }
     }
 }

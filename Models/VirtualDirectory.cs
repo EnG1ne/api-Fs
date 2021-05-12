@@ -9,6 +9,22 @@ namespace backend_test.Models
     {
         public string Name { get; set; }
 
-        public List<VirtualFile> Files { get; set; }
+        private List<IFileSystemObject> FilesAndDirectories;
+
+        // Create a virtual directory
+        public VirtualDirectory(string name)
+        {
+            Name = name;
+        }
+
+        public void AddVirtualFile(VirtualFile newFile)
+        {
+            FilesAndDirectories.Add(newFile);
+        }
+        
+        public void AddVirtualDirectory(VirtualDirectory newDirectory)
+        {
+            FilesAndDirectories.Add(newDirectory);
+        }
     }
 }

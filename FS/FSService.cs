@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using backend_test.Helpers;
 
 namespace backend_test.Models
 {
@@ -15,31 +16,7 @@ namespace backend_test.Models
     {
         public List<string> GetAllFilesInPath(string path)
         {
-            try
-            {
-                List<string> allFilesAndDirectories = new List<string>();
-
-                // Get TRUE root based on project location and not on run location
-                string rootPath = "";
-
-                // User gave path
-                if (path != null)
-                {
-
-                }
-                // User gave no path, return files in root
-                else
-                {
-
-                }
-
-                return allFilesAndDirectories;
-            }
-            catch (Exception ex)
-            {
-                Console.Write(ex.Message);
-                return null;
-            }
+            return FileSystem.GetAllContent(path);
         }
     }
 }

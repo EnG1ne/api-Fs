@@ -9,6 +9,22 @@ namespace backend_test.Models
     {
         public string Name { get; set; }
 
-        public string Content { get; set; }
+        private string Content;
+
+        public VirtualFile(string name)
+        {
+            Name = name;
+        }
+
+        public VirtualFile(string name, string content)
+        {
+            Name = name;
+            Content = content;
+        }
+
+        public string GetContent()
+        {
+            return Content;
+        }
     }
 }
