@@ -16,8 +16,13 @@ namespace backend_test.Helpers
         {
             VirtualDirectory deepDir = new VirtualDirectory("Deep");
             VirtualDirectory twoDeepDir = new VirtualDirectory("DeepTwo");
+            VirtualDirectory threeDeepDir = new VirtualDirectory("DeepThree");
 
+            deepDir.AddVirtualFile(new VirtualFile("notSoFast.txt", "nice try"));
             twoDeepDir.AddVirtualFile(new VirtualFile("Top-Secret.img", "s3xy stuff"));
+            threeDeepDir.AddVirtualFile(new VirtualFile("ITS-TOO-DEEP-STOP.txt", "BLBLLLBLBLBLB"));
+            threeDeepDir.AddVirtualFile(new VirtualFile("NUCLEAR-CODES.txt", "1234"));
+            twoDeepDir.AddVirtualDirectory(threeDeepDir);
             deepDir.AddVirtualDirectory(twoDeepDir);
 
             fileSystem.Add(deepDir);
@@ -49,10 +54,9 @@ namespace backend_test.Helpers
 
                 if (selecteDirectory != null)
                 {
-                    allContent = selecteDirectory.GetAllSubFiles();
+                    allContent = selecteDirectory.GetAllDirectoryContent();
                 }
             }
-
 
             return allContent;
         }
@@ -63,28 +67,48 @@ namespace backend_test.Helpers
             if (path.Contains('/'))
             {
                 var separatedPathNames = path.Split('/');
+                VirtualDirectory targetDirectory = null;
 
-                //Console.WriteLine(separatedPathNames);
+                // Navigate to each param
+                for (var i = 0; i < separatedPathNames.Length; i++)
+                {
+                    Console.WriteLine($"Finding directory {separatedPathNames[i]}");
+
+                    // First execution uses root of file system
+                    if (i == 0)
+                    {
+                        targetDirectory = GetTargetDirectory(separatedPathNames[i], fileSystem);
+                    }
+                    // Subsequent executions use contents of directory
+                    else
+                    {
+                        targetDirectory = GetTargetDirectory(separatedPathNames[i], targetDirectory.GetAllSubFiles());
+                    }
+
+                    if (targetDirectory == null)
+                    {
+                        Console.WriteLine($"No {separatedPathNames[i]} directory found!");
+                        return targetDirectory;
+                    }
+                }
+
+                return targetDirectory;
             }
             // Simple path with only 1 level
             else
             {
-                foreach (var file in fileSystem)
-                {
-                    // File/Directory Found
-                    if (file.Name.Equals(path))
-                    {
-                        if (file is VirtualFile)
-                        {
-                            Console.WriteLine("This command can only be ran on Folders!");
-                            return null;
-                        }
-                        else
-                        {
-                            return (VirtualDirectory) file;
-                        }
-                    }
-                }                
+                return GetTargetDirectory(path, fileSystem);
+            }
+        }
+
+        // Helper for nested path
+        private static VirtualDirectory GetTargetDirectory(string path, List<IFileSystemObject> contentList)
+        {
+            foreach (var file in from file in contentList
+                                 where file.Name.Equals(path)
+                                 select file)
+            {
+                return (file is VirtualFile) ? null : (VirtualDirectory)file;
             }
 
             return null;

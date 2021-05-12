@@ -23,6 +23,8 @@ namespace backend_test.Controllers
         {
             List<string> list = _fsService.GetAllFilesInPath(p);
 
+            if (list.Count == 0) list.Add("No results! Please ensure files exist in the target folder.");
+
             return list;
         }
 

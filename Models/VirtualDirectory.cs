@@ -30,9 +30,15 @@ namespace backend_test.Models
             FilesAndDirectories.Add(newDirectory);
         }
 
-        public List<string> GetAllSubFiles()
+        public List<string> GetAllDirectoryContent()
         {
             return FilesAndDirectories.Select(file => file.Name).ToList();
         }
+
+        public List<IFileSystemObject> GetAllSubFiles()
+        {
+            return FilesAndDirectories;
+        }
+
     }
 }
