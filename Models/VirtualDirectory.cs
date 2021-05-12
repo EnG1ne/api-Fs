@@ -40,5 +40,18 @@ namespace backend_test.Models
             return FilesAndDirectories;
         }
 
+        public bool RemoveFileOrDirectory(IFileSystemObject deletedFile)
+        {
+            try
+            {
+                FilesAndDirectories.Remove(deletedFile);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
     }
 }

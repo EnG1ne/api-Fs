@@ -47,15 +47,32 @@ namespace backend_test.Controllers
         }
 
         [HttpDelete]
-        public string DeleteFsObject([FromQuery] string p)
+        public string DeleteFsObject([FromQuery] string p, [FromQuery] string flag)
         {
-            return null;
+            _logger.LogInformation($"Deleting file at path {p}");
+            bool deleteCompleted;
+
+            // Permission to delete directory if path contains
+            if (flag == "-r")
+            {
+               deleteCompleted = _fileSystemService.DeleteFileOrFolder(p, true);
+            }
+            else
+            {
+                deleteCompleted = _fileSystemService.DeleteFileOrFolder(p, false);
+            }
+
+
+            return deleteCompleted ? "Delete Successful!" : "Delete Failed";
+
         }
 
         [HttpGet("content")]
         public string GetFsContent([FromQuery] string p)
         {
-            return null;
+            _logger.LogInformation($"Getting content of file at path {p}");
+
+            return _fileSystemService.GetContentOfFile(p);
         }
     }
 }

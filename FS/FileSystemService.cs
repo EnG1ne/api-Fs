@@ -10,6 +10,8 @@ namespace backend_test.Helpers
     {
         public List<string> GetAllContent(string path);
         public bool CreateNewVirtualFile(string path, VirtualFile file);
+        public bool DeleteFileOrFolder(string path, bool isFlagActive);
+        public string GetContentOfFile(string path);
     }
 
     // Creates and manages virtual file system
@@ -42,21 +44,217 @@ namespace backend_test.Helpers
             return allContent;
         }
 
-        public bool CreateNewVirtualFile(string path, VirtualFile file)
+        public bool CreateNewVirtualFile(string path, VirtualFile newFile)
         {
             // Create new file in root
             if (path == "" || path == null)
             {
-                FileSystem.fileSystem.Add(file);
-                return true;
+                return CreateFileIfNoDuplicate(newFile, null);
             }
             // Create new file in given path
             else
             {
-                VirtualDirectory selectedDirectory;
+                VirtualDirectory selectedDirectory = NavigateToPath(path);
+
+                bool isCreated = CreateFileIfNoDuplicate(newFile, selectedDirectory);
+
+                foreach (var file in selectedDirectory.GetAllSubFiles())
+                {
+                    Console.WriteLine(file.Name);
+                }
+
+                return isCreated;
+            }
+        }
+
+        public bool DeleteFileOrFolder(string path, bool isFlagActive)
+        {
+            // Delete File or Directory
+            if (isFlagActive)
+            {
+                if (path == "" || path == null || !path.Contains('/'))
+                {
+                    foreach (IFileSystemObject file in FileSystem.fileSystem)
+                    {
+                        if (file.Name == path)
+                        {
+                            FileSystem.fileSystem.Remove(file);
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+                else
+                {
+                    var separatedPathNames = path.Split('/');
+                    var pathWithoutTargetArray = separatedPathNames.Take(separatedPathNames.Length - 1).ToArray();
+                    var fileOrDirectoryName = separatedPathNames[separatedPathNames.Length - 1];
+
+                    string pathWithoutTarget = "";
+
+                    for (var i = 0; i < pathWithoutTargetArray.Length; i++)
+                    {
+                        if ( i == 0 )
+                        {
+                            pathWithoutTarget = pathWithoutTargetArray[i];
+                        }
+                        else
+                        {
+                            pathWithoutTarget += "/" + pathWithoutTargetArray[i];
+                        }
+                    }
+
+                    VirtualDirectory selectedDirectory = NavigateToPath(pathWithoutTarget);
+
+                    if (selectedDirectory != null)
+                    {
+                        foreach (IFileSystemObject file in selectedDirectory.GetAllSubFiles())
+                        {
+                            if (file.Name == fileOrDirectoryName)
+                            {
+                                selectedDirectory.RemoveFileOrDirectory(file);
+                                return true;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        return false;
+                    }
+
+                }
+            }
+            // Only delete if it's a file
+            else
+            {
+                var separatedPathNames = path.Split('/');
+                var pathWithoutTargetArray = separatedPathNames.Take(separatedPathNames.Length - 1).ToArray();
+                var fileOrDirectoryName = separatedPathNames[separatedPathNames.Length - 1];
+
+                string pathWithoutTarget = "";
+
+                for (var i = 0; i < pathWithoutTargetArray.Length; i++)
+                {
+                    if (i == 0)
+                    {
+                        pathWithoutTarget = pathWithoutTargetArray[i];
+                    }
+                    else
+                    {
+                        pathWithoutTarget += "/" + pathWithoutTargetArray[i];
+                    }
+                }
+
+                VirtualDirectory selectedDirectory = NavigateToPath(pathWithoutTarget);
+
+                if (selectedDirectory != null)
+                {
+                    foreach (IFileSystemObject file in selectedDirectory.GetAllSubFiles())
+                    {
+                        // Only delete if it's a file
+                        if (file.Name == fileOrDirectoryName && file is VirtualFile)
+                        {
+                            selectedDirectory.RemoveFileOrDirectory(file);
+                            return true;
+                        }
+                        // Error
+                        else
+                        {
+                            return false;
+                        }
+                    }
+                }
+                else
+                {
+                    return false;
+                }
             }
 
             return true;
+        }
+
+        public string GetContentOfFile(string path)
+        {
+            if (path == "" || path == null || !path.Contains('/'))
+            {
+                foreach (IFileSystemObject file in FileSystem.fileSystem)
+                {
+                    if (file.Name == path && file is VirtualFile)
+                    {
+                        return ((VirtualFile)file).GetContent();
+                    }
+                }
+                return "No matching file found";
+            }
+            else
+            {
+                var separatedPathNames = path.Split('/');
+                var pathWithoutTargetArray = separatedPathNames.Take(separatedPathNames.Length - 1).ToArray();
+                var fileName = separatedPathNames[separatedPathNames.Length - 1];
+
+                string pathWithoutTarget = "";
+
+                for (var i = 0; i < pathWithoutTargetArray.Length; i++)
+                {
+                    if (i == 0)
+                    {
+                        pathWithoutTarget = pathWithoutTargetArray[i];
+                    }
+                    else
+                    {
+                        pathWithoutTarget += "/" + pathWithoutTargetArray[i];
+                    }
+                }
+
+                Console.WriteLine(pathWithoutTarget);
+
+                VirtualDirectory selectedDirectory = NavigateToPath(pathWithoutTarget);
+
+                if (selectedDirectory != null)
+                {
+                    foreach (IFileSystemObject file in selectedDirectory.GetAllSubFiles())
+                    {
+                        if (file.Name == fileName && file is VirtualFile)
+                        {
+                            return ((VirtualFile)file).GetContent();
+                        }
+                    }
+                }
+            }
+
+            return "File not Found!";
+        }
+
+        private bool CreateFileIfNoDuplicate(VirtualFile newFile, VirtualDirectory targetDirectory)
+        {
+            bool fileAlreadyExist;
+ 
+            // Use root
+            if (targetDirectory == null)
+            {
+                fileAlreadyExist = FileSystem.fileSystem.Any(f => f.Name == newFile.Name);
+            }
+            else
+            {
+                fileAlreadyExist = targetDirectory.GetAllSubFiles().Any(f => f.Name == newFile.Name);
+            }
+
+            if (!fileAlreadyExist)
+            {
+                if (targetDirectory == null) {
+                    FileSystem.fileSystem.Add(newFile);
+                }
+                else
+                {
+                    targetDirectory.AddVirtualFile(newFile);
+                }
+
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         private VirtualDirectory NavigateToPath(string path)
