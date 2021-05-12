@@ -22,7 +22,9 @@ namespace backend_test
         {
             services.AddControllers();
 
-            services.AddScoped<IFileSystemService, FileSystemService>();
+            services.AddSingleton<IFileSystemService, FileSystemService>();
+
+            FileSystem.CreateMockFileSystem();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

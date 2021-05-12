@@ -17,9 +17,6 @@ namespace backend_test.Controllers
         {
             _logger = logger;
             _fileSystemService = fileSystemService;
-
-            // CREATE MOCKS
-            _fileSystemService.CreateMockFileSystem();
         }
 
         [HttpGet]
@@ -31,13 +28,15 @@ namespace backend_test.Controllers
         }
 
         [HttpPost]
-        public string CreateFsObject([FromQuery] string p, [FromBody] CreateFileRequest newFileReq)
+        public VirtualFile CreateFsObject([FromQuery] string p, [FromBody] CreateFileRequest newFileReq)
         {
             _logger.LogInformation($"Creating new file at path {p}");
 
-            string result = _fileSystemService.CreateNewVirtualFile(p, new VirtualFile(newFileReq.Name, newFileReq.Content));
+            VirtualFile newFile = new VirtualFile(newFileReq.Name, newFileReq.Content);
 
-            return null;
+            var isCreated = _fileSystemService.CreateNewVirtualFile(p, newFile);
+
+            return isCreated ? newFile : new VirtualFile("ERROR CREATING FILE");
         }
 
 

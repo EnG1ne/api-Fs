@@ -8,48 +8,22 @@ namespace backend_test.Helpers
 {
     public interface IFileSystemService
     {
-        public void CreateMockFileSystem();
         public List<string> GetAllContent(string path);
-        public string CreateNewVirtualFile(string path, VirtualFile file);
+        public bool CreateNewVirtualFile(string path, VirtualFile file);
     }
 
     // Creates and manages virtual file system
     public class FileSystemService : IFileSystemService
     {
-        public List<IFileSystemObject> fileSystem = new List<IFileSystemObject>();
-
-        // CREATES SOME FILES AND FOLDERS FOR TESTING PURPOSES
-        public void CreateMockFileSystem()
-        {
-            VirtualDirectory deepDir = new VirtualDirectory("Deep");
-            VirtualDirectory twoDeepDir = new VirtualDirectory("DeepTwo");
-            VirtualDirectory threeDeepDir = new VirtualDirectory("DeepThree");
-
-            deepDir.AddVirtualFile(new VirtualFile("notSoFast.txt", "nice try"));
-            twoDeepDir.AddVirtualFile(new VirtualFile("Top-Secret.img", "s3xy stuff"));
-            threeDeepDir.AddVirtualFile(new VirtualFile("ITS-TOO-DEEP-STOP.txt", "BLBLLLBLBLBLB"));
-            threeDeepDir.AddVirtualFile(new VirtualFile("NUCLEAR-CODES.txt", "1234"));
-            twoDeepDir.AddVirtualDirectory(threeDeepDir);
-            deepDir.AddVirtualDirectory(twoDeepDir);
-
-            fileSystem.Add(deepDir);
-            fileSystem.Add(new VirtualDirectory("Mantle-Files"));
-            fileSystem.Add(new VirtualDirectory("School-Files"));
-
-            fileSystem.Add(new VirtualFile("Private-Keys.txt", "kdnasjkfn87h823ashfajk289"));
-            fileSystem.Add(new VirtualFile("FinalAssignment.pdf", "Gena Hahn Sux"));
-            fileSystem.Add(new VirtualFile("personalProject.txt"));
-        }
-
         public List<string> GetAllContent(string path)
         {
             List<string> allContent = new List<string>();
-            VirtualDirectory selecteDirectory;
+            VirtualDirectory selectedDirectory;
 
             // Show files in active directory
             if (path == "" || path == null)
             {
-                foreach (IFileSystemObject file in fileSystem)
+                foreach (IFileSystemObject file in FileSystem.fileSystem)
                 {
                     allContent.Add(file.Name);
                 }
@@ -57,22 +31,32 @@ namespace backend_test.Helpers
             // Show files in given path
             else
             {
-                selecteDirectory = NavigateToPath(path);
+                selectedDirectory = NavigateToPath(path);
 
-                if (selecteDirectory != null)
+                if (selectedDirectory != null)
                 {
-                    allContent = selecteDirectory.GetAllDirectoryContent();
+                    allContent = selectedDirectory.GetAllDirectoryContent();
                 }
             }
 
             return allContent;
         }
 
-        public string CreateNewVirtualFile(string path, VirtualFile file)
+        public bool CreateNewVirtualFile(string path, VirtualFile file)
         {
-            Console.WriteLine($"Creating new file at path {path}");
+            // Create new file in root
+            if (path == "" || path == null)
+            {
+                FileSystem.fileSystem.Add(file);
+                return true;
+            }
+            // Create new file in given path
+            else
+            {
+                VirtualDirectory selectedDirectory;
+            }
 
-            return "";
+            return true;
         }
 
         private VirtualDirectory NavigateToPath(string path)
@@ -91,7 +75,7 @@ namespace backend_test.Helpers
                     // First execution uses root of file system
                     if (i == 0)
                     {
-                        targetDirectory = GetTargetDirectory(separatedPathNames[i], fileSystem);
+                        targetDirectory = GetTargetDirectory(separatedPathNames[i], FileSystem.fileSystem);
                     }
                     // Subsequent executions use contents of directory
                     else
@@ -111,7 +95,7 @@ namespace backend_test.Helpers
             // Simple path with only 1 level
             else
             {
-                return GetTargetDirectory(path, fileSystem);
+                return GetTargetDirectory(path, FileSystem.fileSystem);
             }
         }
 
